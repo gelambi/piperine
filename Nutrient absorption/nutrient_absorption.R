@@ -17,11 +17,16 @@ library(MetBrewer)
 library(glmmTMB) 
 library(ggpubr)
 library(parameters)
+library(emmeans)
+
+###########################################################################
+### Objective 2. The effect of piperine on sugar and protein absorption ###
+###########################################################################
 
 ### Absorption of proteins ###
 
 # Read data 
-
+setwd("~/Desktop/piperine/Nutrient absorption")
 data.proteins <- read.csv("protein_absorption.csv")
 data.proteins$treatment <- as.factor(data.proteins$treatment)
 data.proteins$batID <- as.factor(data.proteins$batID)
@@ -31,43 +36,38 @@ data.proteins
 
 glmm1 <- glmmTMB(proteins ~ treatment + (1|date) + (1|batID), data = data.proteins)
 summary(glmm1)
-shapiro.test(resid(glmm1)) # p-value = 0.0004465 no normal
 plot(allEffects(glmm1))
-
-# Because the residuals are not normally distributed, I have to use a different family of models
-
-glmm2 <- glmmTMB(proteins ~ treatment + (1|date) + (1|batID), data = data.proteins, family= "Gamma") # I cannot run this model because proteins is in %, so I would create a new column of the same values but as proportion
+shapiro.test(resid(glmm1)) # p-value = 0.0004465 no normal. Because the residuals are not normally distributed, I have to use a different family of models
 
 data.proteins$proteinsproportion <- data.proteins$proteins/100
 data.proteins
-
 hist(data.proteins$proteins)
 
-glmm2 <- glmmTMB(proteinsproportion ~ treatment + (1|date) + (1|batID), data = data.proteins, family=Gamma(link = log))
-summary(glmm2) 
-plot(allEffects(glmm2))
-shapiro.test(resid(glmm2))
-summary(allEffects(glmm2)) ## Treatment 2% is significantly different from the control (intercept) p = 0.00786.
-parameters(glmm2)
-
 glmm2 <- glmmTMB(proteinsproportion ~ treatment + (1|date) + (1|batID), data = data.proteins, beta_family(link="logit"))
-summary(glmm2) 
+summary(glmm2) # Treatment 2 0.00786 ** 
 plot(allEffects(glmm2))
 shapiro.test(resid(glmm2))
-summary(allEffects(glmm2)) ## Treatment 2% is significantly different from the control (intercept) p = 0.00786.
+hist(resid(glmm2)) # they do not look too bad 
+summary(allEffects(glmm2))
 parameters(glmm2)
+diagnose(glmm2)
+glmm2_emmeans <-emmeans(glmm2,~treatment, type="response")
+glmm2_emmeans
+glmm2_emmeans <- as.data.frame(glmm2_emmeans)
+effect_size_proteins <- eff_size(glmm2_emmeans, sigma= sigma(glmm2), edf = df.residual(glmm2)) # get effect sizes 
+effect_size_proteins 
 
 ## Add the model predictions
 
 data.proteins$predictions <- predict(glmm2, data.proteins, re.form=NA,type="response")
 data.proteins
 
-protein_absorption <- ggplot(data.proteins, aes(x = treatment, y = predictions, color = treatment)) +
-  theme_classic(base_size = 11) +
-  geom_boxplot(data = data.proteins, aes(x = treatment, y = proteinsproportion), alpha = 0.8, color = "grey", fill = "light grey", width = 0.3) +
-  geom_jitter(data = data.proteins, aes(x = treatment, y = proteinsproportion, color = treatment), width = 0.1, size = 2.5, alpha = 0.8) +
+protein_absorption <- ggplot(data.proteins, aes(x = treatment, y = predictions, color = treatment)) + 
+  theme_classic(base_size = 11) + 
+  geom_jitter(data = data.proteins, aes(x = treatment, y = proteinsproportion, color = treatment), width = 0.15, size = 2.5) +
   scale_color_viridis(option = "D", discrete=TRUE) +
   stat_summary(fun.data = mean_se, color = "black") +
+  geom_errorbar(data = glmm2_emmeans, aes(x = treatment, y = response, ymin = lower.CL, ymax = upper.CL), width = 0.2, color = "black") + 
   xlab ("Percentage of piperine in diet") +
   ylab ("Propotion of proteins excreted in fecal samples") +
   theme(legend.position = "null")
@@ -77,7 +77,6 @@ protein_absorption
 ggsave(file="protein_absorption.jpg", 
        plot= protein_absorption,
        width=10,height=,units="cm",dpi=400)
-
 
 ##################
 
@@ -118,17 +117,24 @@ data.sugars.3
 
 head(experiment_data) # Now, I add some of the experiment details into the aligned peak dataframe
 
-data.sugars.3$batID <- experiment_data$batTD
+data.sugars.3$batID <- experiment_data$batID
 data.sugars.3$treatment <- experiment_data$treatment
 data.sugars.3$date <- experiment_data$date
 data.sugars.3$weight <- experiment_data$weight
 data.sugars.3$totalconcentration <- rowSums(data.sugars.3[,1:18])
 data.sugars.3$sugarproportion <- data.sugars.3$totalconcentration/100
 data.sugars.3$treatment <- as.factor(data.sugars.3$treatment)
+data.sugars.3$sampleID <- experiment_data$sampleID
 data.sugars.3 <- data.sugars.3[-8,] # delete an outlier
 data.sugars.3
 
+write.csv(data.sugars.3, "sugar_absorption_final.csv")
+### fixed some aligment issues
+data.sugars.3 <- read.csv("sugar_absorption_final.csv")
+data.sugars.3$treatment <- as.factor(data.sugars.3$treatment)
+
 hist(data.sugars.3$totalconcentration)
+shapiro.test(data.sugars.3$totalconcentration)
 
 glmm3 <- glmmTMB(sugarproportion ~ treatment + (1|date) + (1|batID), data = data.sugars.3)
 summary(glmm3) 
@@ -136,11 +142,19 @@ plot(allEffects(glmm3))
 summary(allEffects(glmm3))
 shapiro.test(resid(glmm3)) # p-value = 0.0005614 no normal
 
-glmm4 <- glmmTMB(sugarproportion ~ treatment + (1|date) + (1|batID), data = data.sugars.3, family=Gamma(link = log))
+glmm4 <- glmmTMB(sugarproportion ~ treatment + (1|date) + (1|batID), data = data.sugars.3, beta_family(link="logit"))
 summary(glmm4) 
 plot(allEffects(glmm4))
 summary(allEffects(glmm4))
 parameters(glmm4)
+shapiro.test(resid(glmm4))
+hist(resid(glmm4))
+diagnose(glmm4)
+glmm4_emmeans <-emmeans(glmm4,~treatment, type="response")
+glmm4_emmeans <- as.data.frame(glmm4_emmeans)
+glmm4_emmeans
+effect_size_sugars <- eff_size(glmm4_emmeans, sigma= sigma(glmm4), edf = df.residual(glmm4)) # get effect sizes 
+effect_size_sugars 
 
 ## Add the model predictions
 
@@ -149,10 +163,10 @@ data.sugars.3
 
 sugar_absorption <- ggplot(data.sugars.3, aes(x = treatment, y = predictions, color = treatment)) +
   theme_classic(base_size = 11) +
-  geom_boxplot(data = data.sugars.3, aes(x = treatment, y = sugarproportion), alpha = 0.8, color = "grey", fill = "light grey", width = 0.3) +
-  geom_jitter(data = data.sugars.3, aes(x = treatment, y = sugarproportion, color = treatment), width = 0.1, size = 2.5, alpha = 0.8) +
+  geom_jitter(data = data.sugars.3, aes(x = treatment, y = sugarproportion, color = treatment), width = 0.1, size = 2.5) +
   scale_color_viridis(option = "D", discrete=TRUE) +
   stat_summary(fun.data = mean_se, color = "black") +
+  geom_errorbar(data = glmm4_emmeans, aes(x = treatment, y = response, ymin = lower.CL, ymax = upper.CL), width = 0.15, color = "black") +
   xlab ("Percentage of piperine in diet") +
   ylab ("Propotion of sugars excreted in fecal samples") +
   theme(legend.position = "null")
@@ -174,7 +188,7 @@ ggsave(file="nutrient_absorption.jpg",
 
 # Multivariate analysis, NMDS: Just sugars
 
-mmatrix <- data.sugars.3[ , 1:18] # select just the peaks
+mmatrix <- data.sugars.3[ , 2:13] # select just the peaks
 matrix <- as.matrix(mmatrix) # turn data frame into matrix
 
 nmds_results <- metaMDS(matrix, 
@@ -209,19 +223,136 @@ adonis <- adonis2(matrix ~ data.scores$treatment, distance = "bray", perm=9999)
 adonis
 write.csv(adonis, file = "adonis_sugar_peaks.csv")
 
-# Now, I will try to see if the treatment affected unique peaks 
 
-glmm_I <- glmmTMB(I ~ treatment + (1|date) + (1|batID), data = data.sugars.3)
-summary(glmm_I) 
-plot(allEffects(glmm_I))
-summary(allEffects(glmm_I))
+######################################
+### Merge proteins and sugars data ###
+######################################
 
-glmm_A <- glmmTMB(A ~ treatment + (1|date) + (1|batID), data = data.sugars.3)
-summary(glmm_A) 
-plot(allEffects(glmm_A))
-summary(allEffects(glmm_A))
+data.proteins <- read.csv("protein_absorption.csv")
+data.proteins$treatment <- as.factor(data.proteins$treatment)
+data.proteins$batID <- as.factor(data.proteins$batID)
+data.proteins
 
-glmm_K <- glmmTMB(K ~ treatment + (1|date) + (1|batID), data = data.sugars.3)
-summary(glmm_K) 
-plot(allEffects(glmm_K))
-summary(allEffects(glmm_K))
+data.sugars.3 <- read.csv("sugar_absorption_final.csv")
+data.sugars.3$treatment <- as.factor(data.sugars.3$treatment)
+
+bothnutrients <- merge(data.proteins, data.sugars.3, by = "sampleID")
+bothnutrients <- as.data.frame(bothnutrients)
+head(bothnutrients)
+
+glmm5 <- glmmTMB(proteins ~ totalconcentration + (1|date.x) + (1|batID.x), data = bothnutrients)
+summary(glmm5) 
+plot(allEffects(glmm5))
+hist(resid(glmm5))
+shapiro.test(resid(glmm5))
+summary(allEffects(glmm5))
+parameters(glmm5)
+diagnose(glmm5)
+
+
+bothnutrients <- ggplot(bothnutrients, aes(x = totalconcentration, y = proteins, color = treatment.x)) +
+  theme_classic(base_size = 13) +
+  geom_jitter(width = 0.1, size = 2.5, alpha = 0.8) + 
+  scale_color_viridis(option = "D", discrete=TRUE, name = "Treatment(%)") +
+  xlab ("Sugars excreted in fecal samples") +
+  ylab ("Proteins excreted in fecal samples")
+  
+bothnutrients
+
+ggsave(file="bothnutrients.jpg", 
+       plot=bothnutrients,
+       width=5,height=4,units="in",dpi=300)
+
+# With data subset 
+
+t_0.1 <- bothnutrients %>% filter(treatment.x %in% c("0.1"))
+t_0.5 <- bothnutrients %>% filter(treatment.x %in% c("0.5"))
+t_1.5 <- bothnutrients %>% filter(treatment.x %in% c("1.5"))
+t_2 <- bothnutrients %>% filter(treatment.x %in% c("2"))
+
+
+bothnutrients_t_0.1 <- ggplot(t_0.1, aes(x = totalconcentration, y = proteins, color = treatment.x)) +
+  theme_classic(base_size = 13) +
+  geom_jitter(width = 0.1, size = 2.5, color = "#39568CFF") + 
+  scale_color_viridis(option = "D", discrete=TRUE, name = "Treatment(%)") +
+  xlab ("Excreted sugars") +
+  ylab ("Excreted proteins") + 
+  theme(legend.position = "null")
+
+bothnutrients_t_0.1
+
+bothnutrients_t_0.5 <- ggplot(t_0.5, aes(x = totalconcentration, y = proteins)) +
+  theme_classic(base_size = 13) +
+  geom_jitter(width = 0.1, size = 2.5, color = "#238A8DFF") + 
+  scale_color_viridis(option = "D", discrete=TRUE, name = "Treatment(%)") +
+  xlab ("Excreted sugars") +
+  ylab ("Excreted proteins") + 
+  theme(legend.position = "null")
+
+bothnutrients_t_0.5
+
+bothnutrients_t_1.5 <- ggplot(t_1.5, aes(x = totalconcentration, y = proteins)) +
+  theme_classic(base_size = 13) +
+  geom_jitter(width = 0.1, size = 2.5, color = "#95D840FF" ) + 
+  scale_color_viridis(option = "D", discrete=TRUE, name = "Treatment(%)") +
+  xlab ("Excreted sugars") +
+  ylab ("Excreted proteins") + 
+  theme(legend.position = "null")
+
+bothnutrients_t_1.5 
+
+bothnutrients_t_2 <- ggplot(t_2, aes(x = totalconcentration, y = proteins)) +
+  theme_classic(base_size = 13) +
+  geom_jitter(width = 0.1, size = 2.5, color = "#FDE725FF") + 
+  scale_color_viridis(option = "D", discrete=TRUE, name = "Treatment(%)") +
+  xlab ("Excreted sugars") +
+  ylab ("Excreted proteins") + 
+  theme(legend.position = "null")
+
+bothnutrients_t_2
+
+ind_molecules_2 <- ggarrange(bothnutrients_t_0.1,
+                             bothnutrients_t_0.5,
+                             bothnutrients_t_1.5,
+                             bothnutrients_t_2,
+                             ncol = 2, nrow = 2)
+ind_molecules_2
+
+ggsave(file="ind_molecules_2.jpg", 
+       plot= ind_molecules_2,
+       width=12,height=12,units="cm",dpi=400)
+
+### GLMM, is there any association between sugar and protein absorption? ###
+
+glmm6 <- glmmTMB(proteins ~ totalconcentration + (1|date.x) + (1|batID.x), data = t_0.1)
+summary(glmm6) 
+hist(resid(glmm6))
+shapiro.test(resid(glmm6))
+parameters(glmm6)
+diagnose(glmm6)
+glmm6_emmeans <-emmeans(glmm6,~totalconcentration)
+glmm6_emmeans
+ 
+glmm7 <- glmmTMB(proteins ~ totalconcentration + (1|date.x) + (1|batID.x), data = t_0.5)
+summary(glmm7) 
+shapiro.test(resid(glmm7))
+parameters(glmm7)
+diagnose(glmm7)
+glmm7_emmeans <-emmeans(glmm7,~totalconcentration)
+glmm7_emmeans
+
+glmm8 <- glmmTMB(proteins ~ totalconcentration + (1|date.x) + (1|batID.x), data = t_1.5)
+summary(glmm8) 
+shapiro.test(resid(glmm8))
+parameters(glmm8)
+diagnose(glmm8)
+glmm8_emmeans <-emmeans(glmm8,~totalconcentration)
+glmm8_emmeans
+
+glmm9 <- glmmTMB(proteins ~ totalconcentration  + (1|date.x) + (1|batID.x), data = t_2)
+summary(glmm9) 
+shapiro.test(resid(glmm9))
+parameters(glmm9)
+diagnose(glmm9)
+glmm9_emmeans <-emmeans(glmm9,~totalconcentration)
+glmm9_emmeans

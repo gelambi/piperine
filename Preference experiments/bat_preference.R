@@ -1,20 +1,29 @@
 rm(list=ls())
 
+library(tidyverse)
 library(ggplot2)
 library(effects)
-library(glmmTMB)
 library(ggplot2)
-library(dplyr)
-library(ggpubr)
-library(parameters)
+library(glmmTMB)
 library(viridis)
 library(viridisLite)
-library(rphylopic)
+library(MetBrewer)
+library(dplyr)
+library(vegan)
+library(GCalignR) 
+library(writexl)
+library(ggplot2)
+library(MetBrewer)
+library(glmmTMB) 
+library(ggpubr)
+library(parameters)
+library(emmeans)
 
-#################################
-### Bat foraging ###
-#################################
+#################################################################################################
+### Objective 1.  The relative role of nutrients and defensive metabolites in bat preference ###
+#################################################################################################
 
+setwd("~/Desktop/piperine/Preference experiments")
 batdata <- read.csv("preference.csv")
 head(batdata)
 hist(batdata$percentagefoodeaten)
@@ -24,57 +33,81 @@ batdata
 ### Filter the data per treatment. Three different two choice treatments were conducted
 
 nutrients <- batdata %>% filter(treatment %in% c("hn", "ln"))
+summary(nutrients)
 amides <- batdata %>% filter(treatment %in% c("ha", "la"))
+summary(amides)
 nutrientamides <- batdata %>% filter(treatment %in% c("ln+lamides", "hn+hamides"))
+summary(nutrientamides)
 
 ### GLMM
 
 # NUTRIENTS
 
-nutrients_glmm <- glmmTMB(food_gamma ~ treatment + (1|bat), data = nutrients, family = beta_family(link="logit"))
+nutrients_glmm <- glmmTMB(food_gamma ~ treatment, data = nutrients, family = beta_family(link="logit"))
 summary(nutrients_glmm)
 shapiro.test(resid(nutrients_glmm))
 plot(allEffects(nutrients_glmm))
 parameters(nutrients_glmm)
 nutrients$prediction <- predict(nutrients_glmm, nutrients, re.form=NA,type="response")
 head(nutrients)
+diagnose(nutrients_glmm)
+nutrients_emmeans <-emmeans(nutrients_glmm,~treatment, type="response")
+nutrients_emmeans
+effect_size_nutrients <- eff_size(nutrients_emmeans, sigma= sigma(nutrients_glmm), edf = df.residual(nutrients_glmm)) # get effect sizes 
+effect_size_nutrients 
+nutrients_emmeans <- as.data.frame(nutrients_emmeans)
 
 hist(amides$percentagefoodeaten) # AMIDES
-amides_glmm <- glmmTMB(food_gamma ~ treatment + (1|bat), data = amides, family = beta_family(link="logit"))
+amides_glmm <- glmmTMB(food_gamma ~ treatment, data = amides, family = beta_family(link="logit"))
 summary(amides_glmm)
 shapiro.test(resid(amides_glmm))
 plot(allEffects(amides_glmm))
 parameters(amides_glmm)
 amides$prediction <- predict(amides_glmm, amides, re.form=NA,type="response")
+diagnose(amides_glmm)
+amides_emmeans <-emmeans(amides_glmm,~treatment, type="response")
+amides_emmeans
+effect_size_amides <- eff_size(amides_emmeans, sigma= sigma(amides_glmm), edf = df.residual(amides_glmm)) # get effect sizes 
+effect_size_amides
+amides_emmeans <- as.data.frame(amides_emmeans)
+
 
 hist(nutrientamides$percentagefoodeaten) # NUTRIENTS AND AMIDES
-nutrientamides_glmm <- glmmTMB(food_gamma ~ treatment + (1|bat), data = nutrientamides, family = beta_family(link="logit"))
+nutrientamides_glmm <- glmmTMB(food_gamma ~ treatment, data = nutrientamides, family = beta_family(link="logit"))
 summary(nutrientamides_glmm)
 shapiro.test(resid(nutrientamides_glmm))
 plot(allEffects(nutrientamides_glmm))
 parameters(nutrientamides_glmm)
 nutrientamides$prediction <- predict(nutrientamides_glmm, nutrientamides, re.form=NA,type="response")
+diagnose(nutrientamides_glmm)
+nutrientamides_emmeans <-emmeans(nutrientamides_glmm,~treatment, type="response")
+nutrientamides_emmeans
+effect_size_nutrientamides <- eff_size(nutrientamides_emmeans, sigma= sigma(nutrientamides_glmm), edf = df.residual(nutrientamides_glmm)) # get effect sizes 
+effect_size_nutrientamides
+nutrientamides_emmeans <- as.data.frame(nutrientamides_emmeans)
 
 ### Graph 
 
 nutrients_graph <- ggplot(nutrients, aes(x = treatment, y = prediction, color= treatment)) + 
   theme_classic(base_size = 13) +
-  geom_boxplot(data = nutrients, aes(x = treatment, y = food_gamma, color = treatment),width = 0.1, color = "black", fill = "light grey", alpha = 0.5) + 
-  geom_jitter(data = nutrients, aes(x = treatment, y = food_gamma, color = treatment), width = 0.1, size = 3, alpha = 0.7) +
-  scale_color_viridis(option = "D", discrete=TRUE) +
+  geom_jitter(data = nutrients, aes(x = treatment, y = food_gamma, color = treatment), width = 0.1, size = 3) +
+  scale_color_viridis(option = "D", discrete=TRUE, direction = -1) +
+  geom_errorbar(data = nutrients_emmeans, aes(x = treatment, y = response, ymin = lower.CL, ymax = upper.CL), width = 0.2, color = "black") + 
   stat_summary(fun.data = mean_se, color = "black") +
   ylab (" ") +
   xlab (" ")
+
 a <- nutrients_graph +
   theme(legend.position = "none") + 
   scale_x_discrete(labels = c("hn" = "High nutrients", "ln" = "Low nutrients"),
                    limits = c("ln","hn"))
 a
+
 amides_graph <- ggplot(amides, aes(x = treatment, y = prediction, color= treatment)) +
   theme_classic(base_size = 13) +
-  geom_boxplot(data = amides, aes(x = treatment, y = food_gamma, color = treatment),width = 0.1, color = "black", fill = "light grey", alpha = 0.5) + 
-  geom_jitter(data = amides, aes(x = treatment, y = food_gamma, color = treatment), width = 0.1, size = 3, alpha = 0.7) +
-  scale_color_viridis(option = "D", discrete=TRUE) +
+  geom_jitter(data = amides, aes(x = treatment, y = food_gamma, color = treatment), width = 0.1, size = 3) +
+  scale_color_viridis(option = "D", discrete=TRUE, direction = -1) +
+  geom_errorbar(data = amides_emmeans, aes(x = treatment, y = response, ymin = lower.CL, ymax = upper.CL), width = 0.2, color = "black") + 
   stat_summary(fun.data = mean_se, color = "black") +
   ylab ("Proportion of food eaten") +
   xlab (" ")
@@ -83,11 +116,12 @@ b <- amides_graph +
   scale_x_discrete(labels = c("ha" = "2% piperine", "la" = "0.1% piperine"),
                    limits = c("la","ha"))
 b
+
 nutrientamides_graph <- ggplot(nutrientamides, aes(x = treatment, y = prediction, color= treatment)) +
   theme_classic(base_size = 13) +
-  geom_boxplot(data = nutrientamides, aes(x = treatment, y = food_gamma, color = treatment),width = 0.1, color = "black", fill = "light grey", alpha = 0.5) + 
-  geom_jitter(data = nutrientamides, aes(x = treatment, y = food_gamma, color = treatment), width = 0.1, size = 3, alpha = 0.7) +
-  scale_color_viridis(option = "D", discrete=TRUE) +
+  geom_jitter(data = nutrientamides, aes(x = treatment, y = food_gamma, color = treatment), width = 0.1, size = 3) +
+  scale_color_viridis(option = "D", discrete=TRUE, direction = -1) +
+  geom_errorbar(data = nutrientamides_emmeans, aes(x = treatment, y = response, ymin = lower.CL, ymax = upper.CL), width = 0.2, color = "black") + 
   stat_summary(fun.data = mean_se, color = "black") +
   ylab ("") +
   xlab ("Treatment")
@@ -97,7 +131,15 @@ c <- nutrientamides_graph +
                    limits = c("ln+lamides","hn+hamides"))
 c
 
-## add a bat icon
+batpreference <- ggarrange(a, b, c,
+                           ncol = 1, nrow = 3)
+batpreference
+
+ggsave(file="batpreference.jpg", 
+       plot=batpreference,
+       width=5,height=6,units="in",dpi=300)
+
+### For presentations, add a bat icon 
 
 bat <- name_search(text = "Carollia perspicillata", options = "namebankID")[[1]] # find names
 bat
@@ -109,11 +151,3 @@ bat_pic <- image_data(bat_id, size = 256)[[1]] # get actual icon, define size. D
 bat_pic
 b_pic <- b + add_phylopic(bat_pic, alpha = 1, x = 1.5, y = 0.7, ysize = 0.4, color = "black")
 b_pic
-
-batpreference <- ggarrange(a, b_pic, c,
-                           ncol = 1, nrow = 3)
-batpreference
-
-ggsave(file="batpreference.jpg", 
-       plot=batpreference,
-       width=5,height=6,units="in",dpi=300)
