@@ -35,7 +35,7 @@ This script was used to process the raw chromatograms and to analyze the absorpt
 ### 1. raw_chromatogram_data.xlsx
 Raw data from the peak integration from ChemStation.
 
-### 2. protein_absorption
+### 2. protein_absorption.csv
 Information about the experiment, including data, treatment and bat ID.
 
 ### 3. sugar_absorption.csv
