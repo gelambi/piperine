@@ -45,6 +45,5 @@ Information about the experiment, including data, treatment and bat ID.
 input_GCalign_sugars.txt: peak area and retention time of each chromatogram. This file was used to align the chromatograms using the package GCalign. The standard format is a tab-delimited text file.
 output.xlsx and output_trans.csv: Aligned chromatograms and extra info about the samples. The extra info is required to run the models.
 
-# Plots and Table folders
+# Plots and Tables folder
 Contain different outputs from the analyses conducted in the scripts. 
-

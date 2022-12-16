@@ -46,7 +46,7 @@ hist(data.proteins$proteins)
 glmm2 <- glmmTMB(proteinsproportion ~ treatment + (1|date) + (1|batID), data = data.proteins, beta_family(link="logit"))
 summary(glmm2) # Treatment 2 0.00786 ** 
 plot(allEffects(glmm2))
-shapiro.test(resid(glmm2))
+shapiro.test(resid(glmm2)) # p-value = 0.0004758
 hist(resid(glmm2)) # they do not look too bad 
 summary(allEffects(glmm2))
 parameters(glmm2)
@@ -54,11 +54,13 @@ diagnose(glmm2)
 glmm2_emmeans <-emmeans(glmm2,~treatment, type="response")
 glmm2_emmeans
 glmm2_emmeans <- as.data.frame(glmm2_emmeans)
-effect_size_proteins <- eff_size(glmm2_emmeans, sigma= sigma(glmm2), edf = df.residual(glmm2)) # get effect sizes 
-effect_size_proteins 
+
+# Effect size 2% piperine (P = 0.008), control = 0.0159, 2% = 0.0212 
+x <- 0.0212 - 0.0159
+effect_size_piperine2 <- (x*100)/0.0159
+effect_size_piperine2  # Percentage: the highest concentration (2%) increased protein excretion by 33.33%
 
 ## Add the model predictions
-
 data.proteins$predictions <- predict(glmm2, data.proteins, re.form=NA,type="response")
 data.proteins
 
@@ -78,8 +80,6 @@ ggsave(file="protein_absorption.jpg",
        plot= protein_absorption,
        width=10,height=,units="cm",dpi=400)
 
-##################
-
 ### Absorption of sugars ###
 
 # Read data 
@@ -87,7 +87,7 @@ ggsave(file="protein_absorption.jpg",
 data.sugars <- ("input_GCalignR_sugars.txt")
 check_input(data = data.sugars)
 
-# Chromatogram aligment 
+# Chromatogram alignment 
 
 peak_data_aligned <- align_chromatograms(data = data.sugars, # input data
                                          rt_col_name = "RT", # retention time variable name 
@@ -104,7 +104,7 @@ peaksaligned <- peak_data_aligned$aligned$Area
 peaksaligned
 write_xlsx(peaksaligned,"output.xlsx") 
 
-data.sugars.2 <- read.csv("output_trans.csv") # I transposed the dataframe and changed the RT by letters
+data.sugars.2 <- read.csv("output_trans.csv") # I transposed the data frame and changed the RT by letters
 
 # The calibration curve eq. using glucose is : Area = 2736.6*Sugar concentration (ug/mL)
 
@@ -194,9 +194,7 @@ matrix <- as.matrix(mmatrix) # turn data frame into matrix
 nmds_results <- metaMDS(matrix, 
                         distance = "bray",       # Specify a bray-curtis distance
                         try = 100)               # Number of iterations
-
 nmds_results
-
 plot(nmds_results, type = "t")
 
 #extract NMDS scores (x and y coordinates)
@@ -211,7 +209,8 @@ nmdsgraph <- ggplot(data.scores, aes(x = MDS1, y = MDS2, colour = treatment)) +
   theme_classic(base_size = 18) +
   scale_color_viridis(option = "D", discrete=TRUE, name = "Treatment (%)") +
   ylab ("NMDS2") +
-  xlab ("NMDS1") 
+  xlab ("NMDS1") + 
+  stat_ellipse(level = 0.95)
 
 nmdsgraph
 
@@ -222,7 +221,6 @@ ggsave(file="ind_sugar_peaks.jpg",
 adonis <- adonis2(matrix ~ data.scores$treatment, distance = "bray", perm=9999)
 adonis
 write.csv(adonis, file = "adonis_sugar_peaks.csv")
-
 
 ######################################
 ### Merge proteins and sugars data ###
@@ -269,58 +267,7 @@ t_0.1 <- bothnutrients %>% filter(treatment.x %in% c("0.1"))
 t_0.5 <- bothnutrients %>% filter(treatment.x %in% c("0.5"))
 t_1.5 <- bothnutrients %>% filter(treatment.x %in% c("1.5"))
 t_2 <- bothnutrients %>% filter(treatment.x %in% c("2"))
-
-
-bothnutrients_t_0.1 <- ggplot(t_0.1, aes(x = totalconcentration, y = proteins, color = treatment.x)) +
-  theme_classic(base_size = 13) +
-  geom_jitter(width = 0.1, size = 2.5, color = "#39568CFF") + 
-  scale_color_viridis(option = "D", discrete=TRUE, name = "Treatment(%)") +
-  xlab ("Excreted sugars") +
-  ylab ("Excreted proteins") + 
-  theme(legend.position = "null")
-
-bothnutrients_t_0.1
-
-bothnutrients_t_0.5 <- ggplot(t_0.5, aes(x = totalconcentration, y = proteins)) +
-  theme_classic(base_size = 13) +
-  geom_jitter(width = 0.1, size = 2.5, color = "#238A8DFF") + 
-  scale_color_viridis(option = "D", discrete=TRUE, name = "Treatment(%)") +
-  xlab ("Excreted sugars") +
-  ylab ("Excreted proteins") + 
-  theme(legend.position = "null")
-
-bothnutrients_t_0.5
-
-bothnutrients_t_1.5 <- ggplot(t_1.5, aes(x = totalconcentration, y = proteins)) +
-  theme_classic(base_size = 13) +
-  geom_jitter(width = 0.1, size = 2.5, color = "#95D840FF" ) + 
-  scale_color_viridis(option = "D", discrete=TRUE, name = "Treatment(%)") +
-  xlab ("Excreted sugars") +
-  ylab ("Excreted proteins") + 
-  theme(legend.position = "null")
-
-bothnutrients_t_1.5 
-
-bothnutrients_t_2 <- ggplot(t_2, aes(x = totalconcentration, y = proteins)) +
-  theme_classic(base_size = 13) +
-  geom_jitter(width = 0.1, size = 2.5, color = "#FDE725FF") + 
-  scale_color_viridis(option = "D", discrete=TRUE, name = "Treatment(%)") +
-  xlab ("Excreted sugars") +
-  ylab ("Excreted proteins") + 
-  theme(legend.position = "null")
-
-bothnutrients_t_2
-
-ind_molecules_2 <- ggarrange(bothnutrients_t_0.1,
-                             bothnutrients_t_0.5,
-                             bothnutrients_t_1.5,
-                             bothnutrients_t_2,
-                             ncol = 2, nrow = 2)
-ind_molecules_2
-
-ggsave(file="ind_molecules_2.jpg", 
-       plot= ind_molecules_2,
-       width=12,height=12,units="cm",dpi=400)
+t_0 <- bothnutrients %>% filter(treatment.x %in% c("0"))
 
 ### GLMM, is there any association between sugar and protein absorption? ###
 
@@ -332,7 +279,18 @@ parameters(glmm6)
 diagnose(glmm6)
 glmm6_emmeans <-emmeans(glmm6,~totalconcentration)
 glmm6_emmeans
- 
+t_0.1$predictions1 <- predict(glmm6, type="response",re.form = NA, newdata = t_0.1)
+
+bothnutrients_t_0.1 <- ggplot(t_0.1, aes(x = totalconcentration, y = proteins, color = treatment.x)) +
+  theme_classic(base_size = 13) +
+  geom_jitter(width = 0.1, size = 2.5, color = "#39568CFF") + 
+  scale_color_viridis(option = "D", discrete=TRUE, name = "Treatment(%)") +
+  geom_line(data=t_0.1, aes(x=totalconcentration,y=predictions1), linetype = 2) +
+  xlab ("Excreted sugars") +
+  ylab ("Excreted proteins") + 
+  theme(legend.position = "null") 
+bothnutrients_t_0.1
+
 glmm7 <- glmmTMB(proteins ~ totalconcentration + (1|date.x) + (1|batID.x), data = t_0.5)
 summary(glmm7) 
 shapiro.test(resid(glmm7))
@@ -340,6 +298,17 @@ parameters(glmm7)
 diagnose(glmm7)
 glmm7_emmeans <-emmeans(glmm7,~totalconcentration)
 glmm7_emmeans
+t_0.5$predictions1 <- predict(glmm7, type="response",re.form = NA, newdata = t_0.5)
+
+bothnutrients_t_0.5 <- ggplot(t_0.5, aes(x = totalconcentration, y = proteins)) +
+  theme_classic(base_size = 13) +
+  geom_jitter(width = 0.1, size = 2.5, color = "#238A8DFF") + 
+  scale_color_viridis(option = "D", discrete=TRUE, name = "Treatment(%)") +
+  geom_line(data=t_0.5, aes(x=totalconcentration,y=predictions1), linetype = 2) +
+  xlab ("Excreted sugars") +
+  ylab ("Excreted proteins") + 
+  theme(legend.position = "null")
+bothnutrients_t_0.5
 
 glmm8 <- glmmTMB(proteins ~ totalconcentration + (1|date.x) + (1|batID.x), data = t_1.5)
 summary(glmm8) 
@@ -348,6 +317,17 @@ parameters(glmm8)
 diagnose(glmm8)
 glmm8_emmeans <-emmeans(glmm8,~totalconcentration)
 glmm8_emmeans
+t_1.5$predictions1 <- predict(glmm8, type="response",re.form = NA, newdata = t_1.5)
+
+bothnutrients_t_1.5 <- ggplot(t_1.5, aes(x = totalconcentration, y = proteins)) +
+  theme_classic(base_size = 13) +
+  geom_jitter(width = 0.1, size = 2.5, color = "#95D840FF" ) + 
+  scale_color_viridis(option = "D", discrete=TRUE, name = "Treatment(%)") +
+  geom_line(data=t_1.5, aes(x=totalconcentration,y=predictions1), linetype = 2) +
+  xlab ("Excreted sugars") +
+  ylab ("Excreted proteins") + 
+  theme(legend.position = "null")
+bothnutrients_t_1.5 
 
 glmm9 <- glmmTMB(proteins ~ totalconcentration  + (1|date.x) + (1|batID.x), data = t_2)
 summary(glmm9) 
@@ -356,3 +336,47 @@ parameters(glmm9)
 diagnose(glmm9)
 glmm9_emmeans <-emmeans(glmm9,~totalconcentration)
 glmm9_emmeans
+t_2$predictions1 <- predict(glmm9, type="response",re.form = NA, newdata = t_2)
+
+bothnutrients_t_2 <- ggplot(t_2, aes(x = totalconcentration, y = proteins)) +
+  theme_classic(base_size = 13) +
+  geom_jitter(width = 0.1, size = 2.5, color = "#FDE725FF") + 
+  scale_color_viridis(option = "D", discrete=TRUE, name = "Treatment(%)") +
+  geom_line(data=t_2, aes(x=totalconcentration,y=predictions1), linetype = 2) +
+  xlab ("Excreted sugars") +
+  ylab ("Excreted proteins") + 
+  theme(legend.position = "null")
+bothnutrients_t_2
+
+glmm10 <- glmmTMB(proteins ~ totalconcentration + (1|date.x) + (1|batID.x), data = t_0)
+summary(glmm10) 
+hist(resid(glmm10))
+shapiro.test(resid(glmm10))
+parameters(glmm10)
+diagnose(glmm10)
+glmm10_emmeans <-emmeans(glmm10,~totalconcentration)
+glmm10_emmeans
+t_0$predictions1 <- predict(glmm10, type="response",re.form = NA, newdata = t_0)
+
+bothnutrients_t_0 <- ggplot(t_0, aes(x = totalconcentration, y = proteins, color = treatment.x)) +
+  theme_classic(base_size = 13) +
+  geom_jitter(width = 0.1, size = 2.5) + 
+  scale_color_viridis(option = "D", discrete=TRUE, name = "Treatment(%)") +
+  geom_line(data=t_0, aes(x=totalconcentration,y=predictions1), linetype = 2) +
+  xlab ("Excreted sugars") +
+  ylab ("Excreted proteins") + 
+  theme(legend.position = "null") 
+bothnutrients_t_0
+
+ind_molecules_2 <- ggarrange(bothnutrients_t_0,
+                             bothnutrients_t_0.1,
+                             bothnutrients_t_0.5,
+                             bothnutrients_t_1.5,
+                             bothnutrients_t_2,
+                             ncol = 3, nrow = 2)
+ind_molecules_2
+
+ggsave(file="ind_molecules_2.jpg", 
+       plot= ind_molecules_2,
+       width=15,height=12,units="cm",dpi=400)
+
