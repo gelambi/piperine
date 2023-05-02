@@ -18,6 +18,7 @@ library(glmmTMB)
 library(ggpubr)
 library(parameters)
 library(emmeans)
+library(performance)
 
 ###########################################################################
 ### Objective 2. The effect of piperine on sugar and protein absorption ###
@@ -51,11 +52,13 @@ hist(resid(glmm2)) # they do not look too bad
 summary(allEffects(glmm2))
 parameters(glmm2)
 diagnose(glmm2)
+r2(glmm2)
 glmm2_emmeans <-emmeans(glmm2,~treatment, type="response")
 glmm2_emmeans
 glmm2_emmeans <- as.data.frame(glmm2_emmeans)
 
 # Effect size 2% piperine (P = 0.008), control = 0.0159, 2% = 0.0212 
+x <- 0.0212/0.0159 # 1.333333-fold
 x <- 0.0212 - 0.0159
 effect_size_piperine2 <- (x*100)/0.0159
 effect_size_piperine2  # Percentage: the highest concentration (2%) increased protein excretion by 33.33%
@@ -66,7 +69,8 @@ data.proteins
 
 protein_absorption <- ggplot(data.proteins, aes(x = treatment, y = predictions, color = treatment)) + 
   theme_classic(base_size = 11) + 
-  geom_jitter(data = data.proteins, aes(x = treatment, y = proteinsproportion, color = treatment), width = 0.15, size = 2.5) +
+  geom_line(data = data.proteins, aes(x = treatment, y = proteinsproportion, group = batID), alpha = 0.5, color = "light grey", position = position_dodge(0.05)) +
+  geom_jitter(data = data.proteins, aes(x = treatment, y = proteinsproportion), size = 2.5, position = position_dodge(0.05)) +
   scale_color_viridis(option = "D", discrete=TRUE) +
   stat_summary(fun.data = mean_se, color = "black") +
   geom_errorbar(data = glmm2_emmeans, aes(x = treatment, y = response, ymin = lower.CL, ymax = upper.CL), width = 0.2, color = "black") + 
@@ -76,7 +80,7 @@ protein_absorption <- ggplot(data.proteins, aes(x = treatment, y = predictions, 
 
 protein_absorption
 
-ggsave(file="protein_absorption.jpg", 
+ggsave(file="protein_absorption_withlines.jpg", 
        plot= protein_absorption,
        width=10,height=,units="cm",dpi=400)
 
@@ -129,7 +133,7 @@ data.sugars.3 <- data.sugars.3[-8,] # delete an outlier
 data.sugars.3
 
 write.csv(data.sugars.3, "sugar_absorption_final.csv")
-### fixed some aligment issues
+### fixed some issues in the peak table
 data.sugars.3 <- read.csv("sugar_absorption_final.csv")
 data.sugars.3$treatment <- as.factor(data.sugars.3$treatment)
 
@@ -153,6 +157,8 @@ diagnose(glmm4)
 glmm4_emmeans <-emmeans(glmm4,~treatment, type="response")
 glmm4_emmeans <- as.data.frame(glmm4_emmeans)
 glmm4_emmeans
+?emmeans
+r2(glmm4)
 effect_size_sugars <- eff_size(glmm4_emmeans, sigma= sigma(glmm4), edf = df.residual(glmm4)) # get effect sizes 
 effect_size_sugars 
 
@@ -163,7 +169,8 @@ data.sugars.3
 
 sugar_absorption <- ggplot(data.sugars.3, aes(x = treatment, y = predictions, color = treatment)) +
   theme_classic(base_size = 11) +
-  geom_jitter(data = data.sugars.3, aes(x = treatment, y = sugarproportion, color = treatment), width = 0.1, size = 2.5) +
+  geom_line(data = data.sugars.3, aes(x = treatment, y = sugarproportion, group = batID), alpha = 0.5, color = "light grey", position = position_dodge(0.05)) +
+  geom_jitter(data = data.sugars.3, aes(x = treatment, y = sugarproportion), size = 2.5, position = position_dodge(0.05)) +
   scale_color_viridis(option = "D", discrete=TRUE) +
   stat_summary(fun.data = mean_se, color = "black") +
   geom_errorbar(data = glmm4_emmeans, aes(x = treatment, y = response, ymin = lower.CL, ymax = upper.CL), width = 0.15, color = "black") +
@@ -173,7 +180,7 @@ sugar_absorption <- ggplot(data.sugars.3, aes(x = treatment, y = predictions, co
 
 sugar_absorption
 
-ggsave(file="sugar_absorption.jpg", 
+ggsave(file="sugar_absorption_withlines.jpg", 
        plot= sugar_absorption,
        width=10,height=,units="cm",dpi=400)
 
@@ -182,7 +189,7 @@ nutrient_absorption <- ggarrange(sugar_absorption, protein_absorption,
 
 nutrient_absorption
 
-ggsave(file="nutrient_absorption.jpg", 
+ggsave(file="nutrient_absorption_withlines.jpg", 
        plot= nutrient_absorption,
        width=20,height=10,units="cm",dpi=400)
 
