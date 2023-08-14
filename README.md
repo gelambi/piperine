@@ -1,6 +1,5 @@
 # Interactions between nutrients and fruit secondary metabolites shape bat foraging behavior and nutrient absorption
 
-# Data information:
 This repository contains scripts, data files, and outputs related to the research paper titled "Interactions between Nutrients and Fruit Secondary Metabolites: Bat Foraging Behavior and Nutrient Absorption." The study looks at the impact of different concentration of piperine on the foraging behavior and nutrient absorption in fruit bats (*Carollia perspicilla*). The study was conducted by Mariana Gelambi, Susan Whitehead, and Estefania Morales at La Selva Biological Station, Costa Rica during June-July 2021. Bats were fed with a synthetic maintenance diet consisting of mashed ripe banana, soy protein isolate, and supplements. We added piperine (Sigma-Aldrich) to the artificial diet. Four different concentrations of piperine, namely 0.1%, 0.5%, 1.5%, and 2% dry weight were added to the artificial diet, representing the range of natural variation of amides in ripe fruit. We collected fecal samples and quantify carbohydrates and proteins using HPLC and spectrophotometric assays, respectevly. 
 
 ## Objective 1. The relative role of nutrients and defensive metabolites in bat preference
