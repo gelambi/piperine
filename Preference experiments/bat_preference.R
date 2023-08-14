@@ -23,7 +23,7 @@ library(sjPlot)
 library(performance)
 
 #################################################################################################
-### Objective 1.  The relative role of nutrients and defensive metabolites in bat preference ###
+### Objective 1. The relative role of nutrients and defensive metabolites in bat preference ###
 #################################################################################################
 
 #################
