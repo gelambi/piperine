@@ -56,6 +56,6 @@ Experiment information, including data, treatment, and bat ID for sugar absorpti
 - `input_GCalign_sugars.txt`: Peak area and retention time of each chromatogram for chromatogram alignment using the GCalign package (tab-delimited text file).
 - `output.xlsx` and `output_trans.csv`: Aligned chromatograms and metadata.
 
-## Plots and Tables
+## Figures
 
-The 'Plots and Tables' folder contains various output files generated from the analyses conducted in the scripts. These files visually represent the results and insights obtained from the data exploration and statistical modeling.
+The 'Figure' folder contains four figures generated from the analyses conducted in the scripts.
