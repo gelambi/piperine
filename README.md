@@ -19,11 +19,11 @@ This script addresses Objective 1.1, 1.2, 1.3, and 1.4. For the first three obje
 - `BatID`: A unique number for each individual bat.
 - `Treatment`: Treatment categories:
   - `ha`: High amides
-- `hn`: High nutrients
-- `hn+hamides`: High amides + high nutrients
-- `la`: Low amides
-- `ln`: Low nutrients
-- `ln+lamides`: Low amides + low nutrients
+  - `hn`: High nutrients
+  - `hn+hamides`: High amides + high nutrients
+  - `la`: Low amides
+  - `ln`: Low nutrients
+  - `ln+lamides`: Low amides + low nutrients
 
 ## Objective 2. The effect of piperine on sugar and protein absorption
 
