@@ -29,7 +29,7 @@ This script addresses Objective 1.1, 1.2, 1.3, and 1.4. For the first three obje
 
 ### Scripts
 
-#### 1. `nutrient_absorption.R`
+#### 1. `script2_objective2.R`
 
 This script addresses Objective 2, which focuses on assessing the effects of piperine on the excretion of (2.1) individual and total sugars and (2.2) total proteins.
 

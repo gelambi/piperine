@@ -1,3 +1,7 @@
+###########################################################################
+### Objective 2. The effect of piperine on sugar and protein absorption ###
+###########################################################################
+
 rm(list=ls())
 
 library(tidyverse)
@@ -24,13 +28,12 @@ library(gplots)
 library(reshape2)
 library(tidyr)
 
-###########################################################################
-### Objective 2. The effect of piperine on sugar and protein absorption ###
-###########################################################################
-
 ### Absorption of proteins ###
 
-# Read data 
+#################
+### READ DATA ###
+#################
+
 setwd("~/Desktop/piperine/Nutrient absorption")
 data.proteins <- read.csv("protein_absorption.csv")
 data.proteins$treatment <- as.factor(data.proteins$treatment)
@@ -106,7 +109,9 @@ shapiro.test(resid(glmm2))
 
 ### Absorption of sugars ###
 
-# Read data 
+#################
+### READ DATA ###
+#################
 
 data.sugars <- ("input_GCalignR_sugars.txt")
 check_input(data = data.sugars)
@@ -150,6 +155,11 @@ data.sugars.3 <- data.sugars.3[-8,] # delete an outlier
 data.sugars.3
 write.csv(data.sugars.3, "sugar_absorption_final.csv")
 ### fixed some issues in the peak table
+
+#################
+### READ DATA ###
+#################
+
 setwd("/Users/marianagelambi/Desktop/piperine/Nutrient absorption")
 data.sugars.3 <- read.csv("sugar_absorption_final.csv")
 data.sugars.3$treatment <- as.factor(data.sugars.3$treatment)
