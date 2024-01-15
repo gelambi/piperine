@@ -27,6 +27,7 @@ library(car)
 library(gplots)
 library(reshape2)
 library(tidyr)
+library(corrplot)
 
 ### Absorption of proteins ###
 
@@ -80,10 +81,10 @@ data.proteins$predictions <- predict(glmm2, data.proteins, re.form=NA,type="resp
 data.proteins
 
 protein_absorption <- ggplot(data.proteins, aes(x = treatment, y = predictions, color = batID)) + 
-  theme_classic(base_size = 11) + 
+  theme_test(base_size = 10) + 
   #geom_line(data = data.proteins, aes(x = treatment, y = proteinsproportion, group = batID), alpha = 0.3, color = "light grey", position = position_dodge(0.05)) +
-  geom_violin(data = data.proteins, aes(x = treatment, y = proteinsproportion), fill = "light gray", color = "white", alpha = 0.4) +
-  geom_jitter(data = data.proteins, aes(x = treatment, y = proteinsproportion), size = 2.5, position = position_dodge(0.05)) +
+  geom_violin(data = data.proteins, aes(x = treatment, y = proteinsproportion), fill = "light gray", color = "white", alpha = 0.5) +
+  geom_jitter(data = data.proteins, aes(x = treatment, y = proteinsproportion), size = 2.5, width = 0.1, alpha = 0.6) +
   scale_color_viridis(option = "D", discrete=TRUE) +
   stat_summary(fun.data = mean_se, color = "black") +
   geom_errorbar(data = glmm2_emmeans, aes(x = treatment, y = response, ymin = asymp.LCL, ymax = asymp.UCL), width = 0.2, color = "black") + 
@@ -255,10 +256,10 @@ r2(glmm4)
 data.sugars.3$predictions <- predict(glmm4, data.sugars.3, re.form=NA,type="response")
 
 sugar_absorption <- ggplot(data.sugars.3, aes(x = treatment, y = predictions, color = batID)) +
-  theme_classic(base_size = 11) +
+  theme_test(base_size = 10) +
   #geom_line(data = data.sugars.3, aes(x = treatment, y = sugarproportion, group = batID), alpha = 0.3, color = "light grey", position = position_dodge(0.05)) +
-  geom_violin(data = data.sugars.3, aes(x = treatment, y = sugarproportion),  fill = "light gray", color = "white", alpha = 0.4) +
-   geom_jitter(data = data.sugars.3, aes(x = treatment, y = sugarproportion), size = 2.5, position = position_dodge(0.05)) +
+  geom_violin(data = data.sugars.3, aes(x = treatment, y = sugarproportion),  fill = "light gray", color = "white", alpha = 0.5) +
+   geom_jitter(data = data.sugars.3, aes(x = treatment, y = sugarproportion), size = 2.5, width = 0.1, alpha = 0.6) +
   scale_color_viridis(option = "D", discrete=TRUE) +
   stat_summary(fun.data = mean_se, color = "black") +
   geom_errorbar(data = glmm4_emmeans, aes(x = treatment, y = response, ymin = asymp.LCL, ymax = asymp.UCL), width = 0.15, color = "black") +
@@ -280,9 +281,9 @@ nutrient_absorption <- ggarrange(protein_absorption,
 
 nutrient_absorption
 
-ggsave(file="nutrient_absorption_withlines.jpg", 
+ggsave(file="figure3.jpg", 
        plot= nutrient_absorption,
-       width=20,height=10,units="cm",dpi=400)
+       width=16,height=8,units="cm",dpi=600)
 
 ### Individual sugars
 data.sugars.3$A
@@ -303,7 +304,7 @@ glmm5_emmeans <- as.data.frame(glmm5_emmeans)
 data.sugars.3$predictions <- predict(glmm5, data.sugars.3, re.form=NA,type="response")
 
 sugar_absorption_A <- ggplot(data.sugars.3, aes(x = treatment, y = predictions, color = batID)) +
-  theme_classic(base_size = 10) +
+  theme_test(base_size = 10) +
   #geom_violin(data = data.sugars.3, aes(x = treatment, y = A_beta),  fill = "light gray", color = "white", alpha = 0.4) +
   geom_jitter(data = data.sugars.3, aes(x = treatment, y = A_beta), alpha = 0.5, size = 2, position = position_dodge(0.05)) +
   scale_color_viridis(option = "D", discrete=TRUE) +
@@ -343,7 +344,7 @@ glmm6_emmeans <- as.data.frame(glmm6_emmeans)
 data.sugars.3$predictions <- predict(glmm6, data.sugars.3, re.form=NA,type="response")
 
 sugar_absorption_B <- ggplot(data.sugars.3, aes(x = treatment, y = predictions, color = batID)) +
-  theme_classic(base_size = 10) +
+  theme_test(base_size = 10) +
   #geom_violin(data = data.sugars.3, aes(x = treatment, y = B_beta),  fill = "light gray", color = "white", alpha = 0.4) +
   geom_jitter(data = data.sugars.3, aes(x = treatment, y = B_beta), alpha = 0.5, size = 2, position = position_dodge(0.05)) +
   scale_color_viridis(option = "D", discrete=TRUE) +
@@ -372,7 +373,7 @@ glmm7_emmeans <- as.data.frame(glmm7_emmeans)
 data.sugars.3$predictions <- predict(glmm7, data.sugars.3, re.form=NA,type="response")
 
 sugar_absorption_F <- ggplot(data.sugars.3, aes(x = treatment, y = predictions, color = batID)) +
-  theme_classic(base_size = 10) +
+  theme_test(base_size = 10) +
   #geom_violin(data = data.sugars.3, aes(x = treatment, y = F_beta),  fill = "light gray", color = "white", alpha = 0.4) +
   geom_jitter(data = data.sugars.3, aes(x = treatment, y = F_beta), alpha = 0.5, size = 2, position = position_dodge(0.05)) +
   scale_color_viridis(option = "D", discrete=TRUE) +
@@ -407,13 +408,13 @@ effect_size_piperine
 data.sugars.3$predictions <- predict(glmm8, data.sugars.3, re.form=NA,type="response")
 
 sugar_absorption_G <- ggplot(data.sugars.3, aes(x = treatment, y = predictions, color = batID)) +
-  theme_classic(base_size = 10) +
+  theme_test(base_size = 10) +
   #geom_violin(data = data.sugars.3, aes(x = treatment, y = G_beta),  fill = "light gray", color = "white", alpha = 0.4) +
   geom_jitter(data = data.sugars.3, aes(x = treatment, y = G_beta), alpha = 0.5, size = 2, position = position_dodge(0.05)) +
   scale_color_viridis(option = "D", discrete=TRUE) +
   stat_summary(fun.data = mean_se, color = "black") +
   geom_errorbar(data = glmm8_emmeans, aes(x = treatment, y = response, ymin = asymp.LCL, ymax = asymp.UCL), width = 0.15, color = "black") +
-  xlab ("Piperine (%)") +
+  xlab ("Percentage of piperine in diet") +
   ylab ("G") +
   theme(legend.position = "none") + 
   geom_text(aes(x = "1.5", y = 0.02, label = "*"), size = 8, color = "black")
@@ -437,13 +438,13 @@ glmm9_emmeans <- as.data.frame(glmm9_emmeans)
 data.sugars.3$predictions <- predict(glmm9, data.sugars.3, re.form=NA,type="response")
 
 sugar_absorption_K <- ggplot(data.sugars.3, aes(x = treatment, y = predictions, color = batID)) +
-  theme_classic(base_size = 10) +
+  theme_test(base_size = 10) +
   #geom_violin(data = data.sugars.3, aes(x = treatment, y = K_beta),  fill = "light gray", color = "white", alpha = 0.4) +
   geom_jitter(data = data.sugars.3, aes(x = treatment, y = K_beta), alpha = 0.5, size = 2, position = position_dodge(0.05)) +
   scale_color_viridis(option = "D", discrete=TRUE) +
   stat_summary(fun.data = mean_se, color = "black") +
   geom_errorbar(data = glmm9_emmeans, aes(x = treatment, y = response, ymin = asymp.LCL, ymax = asymp.UCL), width = 0.15, color = "black") +
-  xlab ("Piperine (%)") +
+  xlab ("Percentage of piperine in diet") +
   ylab ("K") +
   theme(legend.position = "none") + 
   geom_text(aes(x = "2", y = 0.011, label = "*"), size = 8, color = "black")
@@ -466,9 +467,9 @@ individual_sugars <- ggarrange(sugar_absorption_A,
                                ncol = 2, nrow = 3)
 individual_sugars
 
-ggsave(file="individual_sugars.jpg", 
+ggsave(file="figure4.jpg", 
        plot=individual_sugars,
-       width=5,height=5,units="in",dpi=300)
+       width=5,height=8,units="in",dpi=600)
 
 
 ### before NMDS, evaluate correlation between sugar peaks
@@ -509,7 +510,7 @@ correlation_sugars <- ggplot(complete_df, aes(x = Peaks1, y = Peaks2, fill = Cor
   geom_tile() +
   labs(x = " ",
        y = " ") +
-  scale_fill_gradient2(high =  "#400154BF", mid = "white", low = "#D8E219FF",
+  scale_fill_gradient2(high =  "#400154BF", mid = "white", low = "darkorange",
                        midpoint = 0, limits = c(-1, 1), name = "Correlation\nCoefficient") +
   theme_classic() +
   theme(plot.title = element_text(hjust = 0.5)) +

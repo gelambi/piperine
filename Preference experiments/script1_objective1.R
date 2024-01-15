@@ -73,20 +73,18 @@ nutrients_ttest_total$difference <- (nutrients_ttest_total$foodconsumed.x - nutr
 
 # Create a horizontal line plot with colors for positive and negative values
 plot_nutrients <- ggplot(nutrients_ttest_total, aes(y = difference)) +
-  theme_classic(base_size = 15) + 
+  theme_test(base_size = 10) + 
   ggtitle("(A) Trial 1.1")+ 
   theme(plot.title = element_text(hjust = 0.5)) + 
-  theme(legend.position = "bottom",
-        axis.text.x = element_text(size = 16),  # Adjust x-axis label size
-        legend.text = element_text(size = 13))  + # Adjust legend text size 
-  geom_violin(aes(x = 0, y = difference), fill = "light gray", color = "white", alpha = 0.2) + 
-  geom_point(aes(x = 0, color = factor(difference > 0)), size = 8, alpha = 0.8) +
+  theme(legend.position = "bottom") + 
+  geom_violin(aes(x = 0, y = difference), fill = "light gray", color = "white", alpha = 0.4) + 
+  geom_point(aes(x = 0, color = factor(difference > 0)), size = 5, alpha = 0.7) +
   annotate("segment", x = -Inf, xend = Inf, y = 0, yend = 0, color = "black", linetype = "dashed") + 
   xlab (" ") + 
   ylab ("Differences in the amount of diet consumed (g)\nHigh nutrients − Low nutrients") + 
   scale_x_continuous(breaks = NULL) +  # Remove x-axis tick marks
   guides(color = guide_legend(title = NULL)) +  # Remove legend title
-  scale_color_manual(values = c("TRUE" = "#440154FF", "FALSE" = "#D8E219FF"),
+  scale_color_manual(values = c("TRUE" = "#440154FF", "FALSE" = "darkorange"),
                      labels = c("Low nutrient\npreferred", "High nutrient\npreferred"),
                      name = "Preference") + 
   scale_y_continuous(breaks = c(-5, 0, 5),
@@ -126,20 +124,18 @@ piperine_ttest_total$difference <- (piperine_ttest_total$foodconsumed.x - piperi
 
 # Create a horizontal line plot with colors for positive and negative values
 plot_piperine <- ggplot(piperine_ttest_total, aes(y = difference)) +
-  theme_classic(base_size = 15) + 
+  theme_test(base_size = 10) + 
   ggtitle("(B) Trial 1.2") + 
   theme(plot.title = element_text(hjust = 0.5)) + 
-  theme(legend.position = "bottom",
-        axis.text.x = element_text(size = 16),  # Adjust x-axis label size
-        legend.text = element_text(size = 13))  + # Adjust legend text size 
-  geom_violin(aes(x = 0, y = difference), fill = "light gray", color = "white", alpha = 0.2) + 
-  geom_point(aes(x = 0, color = factor(difference > 0)), size = 8, alpha = 0.8) +
+  theme(legend.position = "bottom") +
+  geom_violin(aes(x = 0, y = difference), fill = "light gray", color = "white", alpha = 0.4) + 
+  geom_point(aes(x = 0, color = factor(difference > 0)), size = 5, alpha = 0.7) +
   annotate("segment", x = -Inf, xend = Inf, y = 0, yend = 0, color = "black", linetype = "dashed") + 
   xlab (" ") + 
   ylab ("2% piperine − 0.1% piperine") + 
   scale_x_continuous(breaks = NULL) +  # Remove x-axis tick marks
   guides(color = guide_legend(title = NULL)) +  # Remove legend title
-  scale_color_manual(values = c("TRUE" = "#440154FF", "FALSE" = "#D8E219FF"),
+  scale_color_manual(values = c("TRUE" = "#440154FF", "FALSE" = "darkorange"),
                      labels = c("0.1% piperine\npreferred", "2% piperine\npreferred"),
                      name = "Preference") + 
   scale_y_continuous(breaks = c(-5, 0, 5),
@@ -182,20 +178,18 @@ nutrients_piperine_ttest_total$difference <- (nutrients_piperine_ttest_total$foo
 
 # Create a horizontal line plot with colors for positive and negative values
 plot_nutrients_piperine <- ggplot(nutrients_piperine_ttest_total, aes(y = difference)) +
-  theme_classic(base_size = 15) + 
+  theme_test(base_size = 10) + 
   ggtitle("(C) Trial 1.3") + 
   theme(plot.title = element_text(hjust = 0.5)) + 
-  theme(legend.position = "bottom",
-        axis.text.x = element_text(size = 16),  # Adjust x-axis label size
-        legend.text = element_text(size = 13))  + # Adjust legend text size 
-  geom_violin(aes(x = 0, y = difference), fill = "light gray", color = "white", alpha = 0.2) + 
-  geom_point(aes(x = 0, color = factor(difference > 0)), size = 8, alpha = 0.8) +
+  theme(legend.position = "bottom") + 
+  geom_violin(aes(x = 0, y = difference), fill = "light gray", color = "white", alpha = 0.4) + 
+  geom_point(aes(x = 0, color = factor(difference > 0)), size = 5, alpha = 0.7) +
   annotate("segment", x = -Inf, xend = Inf, y = 0, yend = 0, color = "black", linetype = "dashed") + 
   xlab (" ") + 
   ylab ("High nutrients, 2% piperine − Low nutrients, 0.1% piperine") + 
   scale_x_continuous(breaks = NULL) +  # Remove x-axis tick marks
   guides(color = guide_legend(title = NULL)) +  # Remove legend title
-  scale_color_manual(values = c("TRUE" = "#440154FF", "FALSE" = "#D8E219FF"),
+  scale_color_manual(values = c("TRUE" = "#440154FF", "FALSE" = "darkorange"),
                      labels = c("Low nutrients,\n0.1% piperine\npreferred", "High nutrients,\n2% piperine\npreferred"),
                      name = "Preference") + 
   scale_y_continuous(breaks = c(-5, 0, 5),
@@ -212,7 +206,7 @@ figure1 <- ggarrange(plot_nutrients,
 figure1
 ggsave(file="figure1.jpg", 
        plot=figure1,
-       width=13,height=8,units="in",dpi=300)
+       width=8,height=5,units="in",dpi=600)
 
 ### calculate the amount of nutrients (protein and carbohydrates).
 head(nutrients_piperine_ttest_total)
@@ -289,7 +283,7 @@ geometric_plot <- ggplot() +
                  height = 0.3) +
   labs(x = "Nutrients consumed per trial (mg)",
        y = "Piperine consumed per trial (mg)") +
-  scale_color_manual(values = c("Trial 1.1" = "#9FDA3AFF", "Trial 1.2" = "#FDE725FF", "Trial 1.3" = "#440154FF")) +
+  scale_color_manual(values = c("Trial 1.1" = "darkolivegreen3", "Trial 1.2" = "#FDE725FF", "Trial 1.3" = "#440154FF")) +
   guides(color = guide_legend(title = "Trials")) 
 
 geometric_plot
@@ -305,23 +299,23 @@ summary_data <- data_geometric_nutrients %>%
             SD_y = sd(y, na.rm = TRUE))
 
 geometric_plot_nutrients <- ggplot() +
-  theme_classic(base_size = 15) + 
+  theme_test(base_size = 10) + 
   ggtitle("(A) Trial 1.1")+ 
   theme(plot.title = element_text(hjust = 0.5)) + 
-  geom_point(data = data_geometric_nutrients, aes(x = x, y = y), color = "#9FDA3AFF", size = 5, alpha = 0.5) +
-  geom_point(data = summary_data, aes(x = Mean_x, y = Mean_y), color = "#9FDA3AFF", size = 7, shape = 17) +
+  geom_point(data = data_geometric_nutrients, aes(x = x, y = y), color = "darkolivegreen3", size = 5, alpha = 0.7) +
   geom_errorbar(data = summary_data, aes(x = Mean_x, ymin = Mean_y - SD_y, ymax = Mean_y + SD_y), 
-                color = "#9FDA3AFF", width = 9) +
+                color = "darkolivegreen3", width = 9) +
   geom_errorbarh(data = summary_data, aes(y = Mean_y, xmin = Mean_x - SD_x, xmax = Mean_x + SD_x), 
-                 color = "#9FDA3AFF", height = 0.3) +
+                 color = "darkolivegreen3", height = 0.3) +
   labs(x = "Nutrients consumed (mg)",
        y = "Piperine consumed (mg)") +
+  geom_point(data = summary_data, aes(x = Mean_x, y = Mean_y), color = "darkolivegreen4", size = 6, shape = 17) +
   scale_y_continuous(breaks = c(0, 5, 10, 15),
                      limits = c(-1, 17)) + 
   scale_x_continuous(breaks = c(0, 150, 300),
                      limits = c(0, 300)) + 
-  geom_text(data = NULL, aes(x = 179, y = 0, label = 'High nutrient\noption'), size = 4, vjust = -0.5) +
-  geom_text(data = NULL, aes(x = 65, y = 0 , label = 'Low nutrient\noption'), size = 4, vjust = -0.5) + 
+  geom_text(data = NULL, aes(x = 179, y = 0, label = 'High nutrient\noption'), size = 3, vjust = -0.5) +
+  geom_text(data = NULL, aes(x = 65, y = 0 , label = 'Low nutrient\noption'), size = 3, vjust = -0.5) + 
   geom_point(data = NULL, aes(x = 179, y = 0), color = 'black', size = 4) +
   geom_point(data = NULL, aes(x = 65, y = 0), color = 'black', size = 4)
 
@@ -339,23 +333,23 @@ summary_data <- data_geometric_piperine %>%
             SD_y = sd(y, na.rm = TRUE))
 
 geometric_plot_piperine <- ggplot() +
-  theme_classic(base_size = 15) + 
+  theme_test(base_size = 10) + 
   ggtitle("(B) Trial 1.2")+ 
   theme(plot.title = element_text(hjust = 0.5)) + 
-  geom_point(data = data_geometric_piperine, aes(x = x, y = y), color = "#FDE725FF", size = 5, alpha = 0.5) +
-  geom_point(data = summary_data, aes(x = Mean_x, y = Mean_y), color = "#FDE725FF", size = 7, shape = 17) + 
+  geom_point(data = data_geometric_piperine, aes(x = x, y = y), color = "goldenrod1", size = 5, alpha = 0.7) +
   geom_errorbar(data = summary_data, aes(x = Mean_x, ymin = Mean_y - SD_y, ymax = Mean_y + SD_y), 
-                color = "#FDE725FF", width = 9) +
+                color = "goldenrod1", width = 9) +
   geom_errorbarh(data = summary_data, aes(y = Mean_y, xmin = Mean_x - SD_x, xmax = Mean_x + SD_x), 
-                 color = "#FDE725FF", height = 0.3) +
+                 color = "goldenrod1", height = 0.3) +
   labs(x = "Nutrients consumed (mg)",
-       y = "Piperine consumed (mg)") +
+       y = " ") +
+  geom_point(data = summary_data, aes(x = Mean_x, y = Mean_y), color = "goldenrod2", size = 6, shape = 17) + 
   scale_y_continuous(breaks = c(0, 5, 10, 15),
                      limits = c(-1, 17)) + 
   scale_x_continuous(breaks = c(0, 150, 300),
                      limits = c(-1, 300)) + 
-  geom_text(data = NULL, aes(x = 179, y = 14.5, label = '2% piperine\n option'), size = 4,vjust = -0.5) +
-  geom_text(data = NULL, aes(x = 179, y = 0.7, label = '0.1% piperine\n option'), size = 4, vjust = -0.5) + 
+  geom_text(data = NULL, aes(x = 245, y = 14.5, label = '2% piperine\n option'), size = 3) +
+  geom_text(data = NULL, aes(x = 245, y = 0.7, label = '0.1% piperine\n option'), size = 3) + 
   geom_segment(data = NULL, aes(x = 179, xend = 179, y = 0, yend = 14.5), linetype = 'dashed', color = 'grey') +
   geom_segment(data = NULL, aes(x = 0, xend = 179, y = 14.5, yend = 14.5), linetype = 'dashed', color = 'grey') +
   geom_segment(data = NULL, aes(x = 179, xend = 179, y = 0, yend = 0.7), linetype = 'dashed', color = 'grey') +
@@ -378,23 +372,23 @@ summary_data <- data_geometric_nutrientspiperine %>%
             SD_y = sd(y, na.rm = TRUE))
 
 geometric_plot_nutrientspiperine <- ggplot() +
-  theme_classic(base_size = 15) + 
+  theme_test(base_size = 10) + 
   ggtitle("(C) Trial 1.3")+ 
   theme(plot.title = element_text(hjust = 0.5)) + 
-  geom_point(data = data_geometric_nutrientspiperine, aes(x = x, y = y), color = "#440154FF", size = 5, alpha = 0.5) +
-  geom_point(data = summary_data, aes(x = Mean_x, y = Mean_y), color = "#440154FF", size = 7, shape = 17) +
+  geom_point(data = data_geometric_nutrientspiperine, aes(x = x, y = y), color = "pink3", size = 5, alpha = 0.7) +
   geom_errorbar(data = summary_data, aes(x = Mean_x, ymin = Mean_y - SD_y, ymax = Mean_y + SD_y), 
-                color = "#440154FF", width = 9) +
+                color = "pink3", width = 9) +
   geom_errorbarh(data = summary_data, aes(y = Mean_y, xmin = Mean_x - SD_x, xmax = Mean_x + SD_x), 
-                 color = "#440154FF", height = 0.3) +
+                 color = "pink3", height = 0.3) +
   labs(x = "Nutrients consumed (mg)",
-       y = "Piperine consumed (mg)") +
+       y = " ") +
+  geom_point(data = summary_data, aes(x = Mean_x, y = Mean_y), color = "pink4", size = 6, shape = 17) +
   scale_y_continuous(breaks = c(0, 5, 10, 15),
                      limits = c(-1, 17)) + 
   scale_x_continuous(breaks = c(0, 150, 300),
                      limits = c(0, 300)) + 
-  geom_text(data = NULL, aes(x = 179, y = 14.5, label = 'High nutrient,\n2% piperine option'), size = 4, vjust = -0.5) +
-  geom_text(data = NULL, aes(x = 65, y = 0.7, label = 'Low nutrient,\n0.1% piperine option'), size = 4, vjust = -0.5) + 
+  geom_text(data = NULL, aes(x = 179, y = 14.5, label = 'High nutrient,\n2% piperine option'), size = 3, vjust = -0.5) +
+  geom_text(data = NULL, aes(x = 80, y = 0.7, label = 'Low nutrient,\n0.1% piperine option'), size = 3, vjust = -0.5) + 
   geom_segment(data = NULL, aes(x = 179, xend = 179, y = 0, yend = 14.5), linetype = 'dashed', color = 'grey') +
   geom_segment(data = NULL, aes(x = 0, xend = 179, y = 14.5, yend = 14.5), linetype = 'dashed', color = 'grey') +
   geom_segment(data = NULL, aes(x = 65, xend = 65, y = -0, yend = 0.7), linetype = 'dashed', color = 'grey') +
@@ -410,9 +404,9 @@ figure2 <- ggarrange(geometric_plot_nutrients,
                              ncol = 3, nrow = 1,
                              align = "hv")
 figure2 
-ggsave(file="figure2 ", 
+ggsave(file="figure2.jpg", 
        plot=figure2 ,
-       width=12,height=5,units="in",dpi=300)
+       width=8,height=4,units="in",dpi=600)
 
 #LM
 head(plot_data)
