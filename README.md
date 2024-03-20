@@ -1,3 +1,5 @@
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.10845889.svg)](https://doi.org/10.5281/zenodo.10845889)
+
 # Data from: "Interactions between nutrients and fruit secondary metabolites shape bat foraging behavior and nutrient absorption"
 
 Data from: "Interactions between nutrients and fruit secondary metabolites shape bat foraging behavior and nutrient absorption" by Gelambi, M., Morales-M. E., & Whitehead, S. R. Published in Ecosphere, 2024.
