@@ -84,14 +84,19 @@ plot_nutrients <- ggplot(nutrients_ttest_total, aes(y = difference)) +
   ylab ("Differences in the amount of diet consumed (g)\nHigh nutrients − Low nutrients") + 
   scale_x_continuous(breaks = NULL) +  # Remove x-axis tick marks
   guides(color = guide_legend(title = NULL)) +  # Remove legend title
-  scale_color_manual(values = c("TRUE" = "#440154FF", "FALSE" = "darkorange"),
+  scale_color_manual(values = c("TRUE" ="darkorchid4", "FALSE" = "darkorange"),
                      labels = c("Low nutrient\npreferred", "High nutrient\npreferred"),
                      name = "Preference") + 
   scale_y_continuous(breaks = c(-5, 0, 5),
-                     limits = c(-5, 5))  # Set the limits of the Y-axis
+                     limits = c(-5, 5)) +  # Set the limits of the Y-axis
+  geom_point(aes(x = 0, y = 1.662833), color = "black", size = 4.5) + 
+  geom_errorbar(aes(x = 0, ymin = 0.4193498, ymax = 2.9063169),
+                color = "black", width = 0.05) 
 plot_nutrients
 
 ### “Geometric Framework for Nutrition”
+
+### piperine % were calculated on dry weight (approximatly 15% of the 5g offered)
 
 ### calculate the amount of nutrients (protein and carbohydrates).
 nutrients_ttest_total$nutrients_dietX <- ((nutrients_ttest_total$foodconsumed.x)*179/5000)*1000
@@ -135,11 +140,15 @@ plot_piperine <- ggplot(piperine_ttest_total, aes(y = difference)) +
   ylab ("2% piperine − 0.1% piperine") + 
   scale_x_continuous(breaks = NULL) +  # Remove x-axis tick marks
   guides(color = guide_legend(title = NULL)) +  # Remove legend title
-  scale_color_manual(values = c("TRUE" = "#440154FF", "FALSE" = "darkorange"),
+  scale_color_manual(values = c("TRUE" = "darkorchid4", "FALSE" = "darkorange"),
                      labels = c("0.1% piperine\npreferred", "2% piperine\npreferred"),
                      name = "Preference") + 
   scale_y_continuous(breaks = c(-5, 0, 5),
-                     limits = c(-5, 5))  # Set the limits of the Y-axis
+                     limits = c(-5, 5)) +  # Set the limits of the Y-axis
+  geom_point(aes(x = 0, y = -2.95), color = "black", size = 4.5) + 
+  geom_errorbar(aes(x = 0, ymin = -4.452933, ymax = -1.447067),
+                color = "black", width = 0.05) 
+
 plot_piperine
 
 ### “Geometric Framework for Nutrition”
@@ -189,11 +198,15 @@ plot_nutrients_piperine <- ggplot(nutrients_piperine_ttest_total, aes(y = differ
   ylab ("High nutrients, 2% piperine − Low nutrients, 0.1% piperine") + 
   scale_x_continuous(breaks = NULL) +  # Remove x-axis tick marks
   guides(color = guide_legend(title = NULL)) +  # Remove legend title
-  scale_color_manual(values = c("TRUE" = "#440154FF", "FALSE" = "darkorange"),
+  scale_color_manual(values = c("TRUE" = "darkorchid4", "FALSE" = "darkorange"),
                      labels = c("Low nutrients,\n0.1% piperine\npreferred", "High nutrients,\n2% piperine\npreferred"),
                      name = "Preference") + 
   scale_y_continuous(breaks = c(-5, 0, 5),
-                     limits = c(-5, 5))  # Set the limits of the Y-axis
+                     limits = c(-5, 5)) + # Set the limits of the Y-axis
+  geom_point(aes(x = 0, y = 1.995), color = "black", size = 4.5) + 
+  geom_errorbar(aes(x = 0, ymin = 0.9061326, ymax = 3.0838674),
+                color = "black", width = 0.05) 
+  
 plot_nutrients_piperine
 
 ### Add all graphs together
